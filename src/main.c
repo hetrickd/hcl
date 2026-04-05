@@ -12,7 +12,7 @@ uint32_t bad_branches[HT_SIZE];
 
 // A number and an expression that makes it
 typedef struct {
-	int16_t value;
+	float value;
 	char expr[EXPR_MAXLEN];
 } NumberExpr;
 
@@ -32,13 +32,13 @@ bool seen_before(uint32_t hash) {
 
 	if (bad_branches[idx] & bitmask) {
 		return true;
-	}	
+	}
 	return false;
 }
 
 void bad_branch(uint32_t hash) {
 	int idx = hash % HT_SIZE;
-	uint32_t bitmask = 1 << (hash % 32);	
+	uint32_t bitmask = 1 << (hash % 32);
 
 	bad_branches[idx] |= bitmask;
 }
@@ -80,46 +80,46 @@ char* solve(NumberExpr nums[], int n, int target) {
 		for (int j = i + 1; j < n; j++) {
 			NumberExpr a = nums[i];
 			NumberExpr b = nums[j];
-			
+
 			NumberExpr rest[MAX_NUM - 1];
 			int idx = 0;
 			for (int k = 0; k < n; k++) {
  				if (k != i && k != j) {
-					rest[idx++] = nums[k]; 
+					rest[idx++] = nums[k];
 				}
 			}
-			
+
 			NumberExpr branches[6];
 			int bidx = 0;
-			
+
 			branches[bidx].value = a.value + b.value;
 			build_expr(branches[bidx].expr, a.expr, b.expr, "+");
 			bidx++;
-			
+
 			branches[bidx].value = a.value * b.value;
 			build_expr(branches[bidx].expr, a.expr, b.expr, "*");
 			bidx++;
-	
+
 			branches[bidx].value = a.value - b.value;
 			build_expr(branches[bidx].expr, a.expr, b.expr, "-");
 			bidx++;
-			
+
 			branches[bidx].value = b.value - a.value;
 			build_expr(branches[bidx].expr, b.expr, a.expr, "-");
 			bidx++;
-			
-			if (b.value != 0 && a.value % b.value == 0) {
+
+			if (b.value != 0) {
 				branches[bidx].value = a.value / b.value;
 				build_expr(branches[bidx].expr, a.expr, b.expr, "/");
 				bidx++;
 			}
-			
-			if (a.value != 0 && b.value % a.value == 0) {
+
+			if (a.value != 0) {
 				branches[bidx].value = b.value / a.value;
 				build_expr(branches[bidx].expr, b.expr, a.expr, "/");
 				bidx++;
 			}
-			
+
 			// recurse for each branch
 			for (int k = 0; k < bidx; k++) {
 				rest[idx] = branches[k];
@@ -129,9 +129,9 @@ char* solve(NumberExpr nums[], int n, int target) {
 				}
 			}
 			bad_branch(h);
-		}	
+		}
 	}
-	
+
 	return NULL;
 }
 
@@ -155,7 +155,7 @@ int main() {
 
 	NumberExpr numbers[MAX_NUM];
 	int n = 0;
-	
+
 	// parse nums after the semicolon
 	char* tok = strtok(sep + 1, " \t\n");
 	while (tok && n < MAX_NUM) {
